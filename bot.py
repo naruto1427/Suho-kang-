@@ -1,27 +1,28 @@
-from pyrogram import Client, idle
-from plugins.cb_data import app as Client2
-from config import *
-import pyromod
-import pyrogram.utils
+import os
+from flask import Flask, request
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
-pyrogram.utils.MIN_CHAT_ID = -999999999999
-pyrogram.utils.MIN_CHANNEL_ID = -100999999999999
+API_ID = int(os.environ.get("API_ID"))
+API_HASH = os.environ.get("API_HASH")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
+app = Flask(__name__)
+bot = Client("webhook_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
+WEBHOOK_URL = f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}"  # Render sets this automatically
+PORT = int(os.environ.get("PORT", 5000))  # Render also injects PORT
 
-bot = Client("Renamer", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH, plugins=dict(root='plugins'))
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
+def telegram_webhook():
+    bot.process_new_updates([request.get_json(force=True)])
+    return "OK"
 
+@bot.on_message(filters.command("start"))
+async def start_cmd(client, message: Message):
+    await message.reply("Hello! I'm alive using webhook on Render.")
 
-
-
-if STRING_SESSION:
-    apps = [Client2,bot]
-    for app in apps:
-        app.start()
-    idle()
-    for app in apps:
-        app.stop()
-    
-else:
-    bot.run()
-
+if __name__ == "__main__":
+    bot.start()
+    bot.set_webhook(WEBHOOK_URL + f"/{BOT_TOKEN}")
+    app.run(host="0.0.0.0", port=PORT)
