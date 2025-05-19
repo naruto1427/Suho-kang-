@@ -11,3 +11,5 @@ services:
       - CHANNEL=${CHANNEL}
       - ADMIN=${ADMIN}
       - BOT_PIC=${BOT_PIC}
+    ports:
+      - "8080:8080"
