@@ -5,15 +5,10 @@ import pyromod
 import pyrogram.utils
 from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import os
+from pyrogram import Client
 
-Thread(target=run_dummy_server).start()
-pyrogram.utils.MIN_CHAT_ID = -999999999999
-pyrogram.utils.MIN_CHANNEL_ID = -100999999999999
-
-
-
-bot = Client("Renamer", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH, plugins=dict(root='plugins'))
-
+# Dummy HTTP server for Koyeb health check
 class DummyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -24,15 +19,19 @@ def run_dummy_server():
     server = HTTPServer(("0.0.0.0", 8080), DummyHandler)
     server.serve_forever()
 
+# Start dummy server in a separate thread
+Thread(target=run_dummy_server).start()
 
-if STRING_SESSION:
-    apps = [Client2,bot]
-    for app in apps:
-        app.start()
-    idle()
-    for app in apps:
-        app.stop()
-    
-else:
-    bot.run()
+# Load credentials from environment variables
+API_ID = int(os.environ.get("API_ID"))
+API_HASH = os.environ.get("API_HASH")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
+bot = Client(
+    "my_bot",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
+
+bot.run()
