@@ -9,3 +9,6 @@ dnspython
 Flask
 gunicorn
 aiohttp
+Flask
+pyrogram
+tgcrypto
