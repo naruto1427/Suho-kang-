@@ -1,4 +1,3 @@
-
 FROM python:latest
 
 WORKDIR /app
@@ -12,6 +11,7 @@ COPY . .
 
 RUN pip3 install -r requirements.txt
 
-COPY . /app
+# Expose port 8080 for Koyeb health checks
+EXPOSE 8080
 
-CMD python3 bot.py
+CMD ["python3", "bot.py"]
